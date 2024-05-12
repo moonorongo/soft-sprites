@@ -1,0 +1,5 @@
+.source.txt
+main.prg
+*.sym
+/output
+build.cmd
