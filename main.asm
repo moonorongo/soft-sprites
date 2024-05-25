@@ -57,9 +57,40 @@ main:
   jsr put_sprite  // pinta el sprite
 */
 
-  // arreglar el shifting, no esta funcionando correcto
-  // ver por que no podemos pintar 2 sprites
-  // se glitchea todo
+/*
+  ldx #10
+  stx sprite_x  // posicion X del sprite
+
+  ldx #15
+  stx sprite_y  // posicion Y del sprite
+
+  // puntero del sprite que quiero copiar
+  ldx #<crazy_face
+  stx SPR_PUT_SPRITE_POINTER
+  ldx #>crazy_face
+  stx SPR_PUT_SPRITE_POINTER + 1
+
+  jsr calc_bytes  // calcula posicion memoria para pintar sprite
+  jsr put_sprite  // pinta el sprite
+*/
+
+
+main_loop:
+  // check SYNC screen
+  lda loop_flag
+  beq loop_flag_false
+  jmp synced_code // loop_flag true 
+
+loop_flag_false:
+  jmp exit
+
+// todo este codigo se ejecuta SYNC con el refresco de pantalla
+// se rompe todo, por que??? 
+// deberia imprimir solamente una carita...
+synced_code:
+  lda #WHITE
+  sta BASE_VIC + $20
+
 
   ldx #10
   stx sprite_x  // posicion X del sprite
@@ -74,33 +105,16 @@ main:
   stx SPR_PUT_SPRITE_POINTER + 1
 
   jsr calc_bytes  // calcula posicion memoria para pintar sprite
-  // jsr put_sprite  // pinta el sprite
-
-
-
-main_loop:
-  // check SYNC screen
-  ldx loop_flag
-  beq loop_flag_false
-  jmp synced_code // loop_flag true 
-
-loop_flag_false:
-  jmp exit
-
-// todo este codigo se ejecuta SYNC con el refresco de pantalla
-synced_code:
-  lda #WHITE
-  sta BASE_VIC + $20
-
   jsr put_sprite  // pinta el sprite
+
 
   lda #BLACK
   sta BASE_VIC + $20
 
 
   // set flag as false
-  ldx #0 
-  stx loop_flag
+  lda #0 
+  sta loop_flag
 
 exit:
   jmp main_loop
@@ -109,8 +123,8 @@ exit:
 
 // Interrupt code for SCREEN_INTERRUPT_LINE
 intcode:
-  ldx #1 
-  stx loop_flag
+  lda #1 
+  sta loop_flag
 
   // SALIDA DEL GAME LOOP
   inc $d019           // acusamos recibo
