@@ -1,5 +1,7 @@
 #importonce 
 
+.const SCREEN_INTERRUPT_LINE = 51
+
 .const BASE_VIC = $d000
 .const VIC_MCR = BASE_VIC + $18
 

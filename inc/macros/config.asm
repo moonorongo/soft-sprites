@@ -54,3 +54,37 @@
     ora #%00010000 // SCREEN MEM $0400
     sta VIC_MCR
 }
+
+
+.macro disable_interrupts() {
+/* 
+    $dc0d, $dd0d Interrupt control and status register. 
+    $7f 01111111
+
+    Bit #7: Fill bit; 
+    bits #0-#6, that are set to 1, get their values from this bit; 
+    bits #0-#6, that are set to 0, are left unchanged.    
+    
+    Deshabilita todo tipo de interrupciones
+*/    
+
+  lda #$7f
+  sta $dc0d
+  sta $dd0d
+} 
+
+
+.macro enable_vic_irq() {
+  /*
+    d01a Interrupt control register. Bits:
+    
+    Bit #0: 1 = Raster interrupt enabled.
+    Bit #1: 1 = Sprite-background collision interrupt enabled.
+    Bit #2: 1 = Sprite-sprite collision interrupt enabled.
+    Bit #3: 1 = Light pen interrupt enabled.    
+  */
+
+  lda $d01a
+  ora #$1
+  sta $d01a
+}

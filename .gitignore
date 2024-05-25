@@ -3,3 +3,4 @@ main.prg
 *.sym
 /output
 build.cmd
+main-vice.log

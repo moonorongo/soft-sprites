@@ -38,11 +38,10 @@ skip_multiply:
     ldy #0
 
 // set column counter
-    ldx #2   
+    ldx #2
 
 // copio salida de calc_byte a SCREEN_MEMORY_POINTER  
     jsr copy_calc_byte_to_scr_mem_ptr
-
 loop1:
     // leo origen y escribo destino
     lda (SPR_PUT_SPRITE_POINTER),y
@@ -90,7 +89,8 @@ end_copy_column_routine:
 // le adiciono 8 (para que vaya al proximo char a la derecha)
     clc
     lda SCREEN_MEMORY_POINTER
-    adc #8
+    adc column_bytes_add:#8
+
     sta SCREEN_MEMORY_POINTER
     bcs !inc_msb_smp+ 
 
@@ -107,16 +107,23 @@ set_column_comparator:
     // si X == 2 => seteo punto comparacion 32
     lda #32
     sta out_loop_compare_value
+
+    // y dejo seteado column_bytes_add en 16, asi se imprime desde la 3ra columna
+    lda #16
+    sta column_bytes_add
     jmp end_column_comparator 
 
 set_48:
     // si X == 1 => seteo punto comparacion 48
+    // y si no es 0, por lo que salgo de la rutina
+    cpx #1  
+    bne end_put_sprite
     lda #48
     sta out_loop_compare_value
 
 end_column_comparator:
     dex
-    beq end_put_sprite
+    // beq end_put_sprite
 
 // inicia copia siguiente columna
     jmp loop1
