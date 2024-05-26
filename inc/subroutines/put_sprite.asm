@@ -6,6 +6,13 @@ sprite_y:
 
 put_sprite:
 {
+// reset
+    lda #8
+    sta column_bytes_add
+
+    lda #16
+    sta out_loop_compare_value
+
 // BLOQUE SETEO PUNTERO DE ORIGEN DATOS
 // obtengo desplazamiento de x
 // para obtener que frame quiero imprimir

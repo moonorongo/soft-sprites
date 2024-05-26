@@ -50,7 +50,7 @@ main:
   ldx #>crazy_face
   stx SPR_PUT_SPRITE_POINTER + 1
 
-  ldx #40
+  ldx #$80
   stx sprite_x  // posicion X del sprite
 
   ldx #15
