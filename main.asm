@@ -5,11 +5,29 @@
 BasicUpstart2(main)
 
 main:
-  set_hires() 
-
-  disable_basic()
+  sei
   disable_interrupts()  
+  set_hires() 
+  disable_basic()
+  enable_vic_irq()
   select_bank_for_vic()
+
+  // clear MSB raster
+  lda $d011
+  and #%01111000
+  ora #%00000101 // fix vertical position
+  sta $d011
+
+  // Set interrupt line
+  lda #SCREEN_INTERRUPT_LINE
+  sta $d012 
+
+  lda #<intcode
+  sta 788      
+  lda #>intcode
+  sta 789
+  
+  cli
 
   // Background colors
   lda #BLACK
@@ -20,51 +38,27 @@ main:
   // clear screen
   jsr clear_screen
 
-// sprite 1
-  ldx #10
+  ldx #0
   stx sprite_x  // posicion X del sprite
 
-  ldx #15
-  stx sprite_y  // posicion Y del sprite
-
-  // puntero del sprite que quiero copiar
-  ldx #<crazy_face
-  stx SPR_PUT_SPRITE_POINTER
-  ldx #>crazy_face
-  stx SPR_PUT_SPRITE_POINTER + 1
-
-  jsr calc_bytes  // calcula posicion memoria para pintar sprite
-  jsr put_sprite  // pinta el sprite
-
-/* 
-  calc_bytes corregido
-
-  segurmente quede algo por inicializar en put_sprite... ver q falta
-*/
-
-
-// sprite 2
-  // puntero del sprite que quiero copiar
-  ldx #<crazy_face
-  stx SPR_PUT_SPRITE_POINTER
-  ldx #>crazy_face
-  stx SPR_PUT_SPRITE_POINTER + 1
-
-  ldx #$80
-  stx sprite_x  // posicion X del sprite
-
-  ldx #15
-  stx sprite_y  // posicion Y del sprite
-
-  jsr calc_bytes  // calcula posicion memoria para pintar sprite
-  jsr put_sprite  // pinta el sprite
-  
 main_loop:
-/*
-  ldx #10
-  stx sprite_x  // posicion X del sprite
+  ldx loop_flag
+  beq loop_flag_false
+  jmp do_all_checks // loop_flag true 
 
-  ldx #15
+loop_flag_false:
+  jmp exit
+
+// todo este codigo se ejecuta SYNC con el refresco de pantalla
+do_all_checks:
+  ldx #0 
+  stx loop_flag
+
+  lda #WHITE
+  sta BASE_VIC + $20
+
+.for (var i = 0; i < 7; i++) {
+  ldx #i * $10
   stx sprite_y  // posicion Y del sprite
 
   // puntero del sprite que quiero copiar
@@ -75,9 +69,41 @@ main_loop:
 
   jsr calc_bytes  // calcula posicion memoria para pintar sprite
   jsr put_sprite  // pinta el sprite
-*/
-main_loop2:
-  jmp main_loop2
+}
+
+
+
+
+  inc sprite_x
+
+  lda #BLACK
+  sta BASE_VIC + $20
+
+
+exit:
+  jmp main_loop
+// END PROGRAM
+
+
+
+
+// Interrupt code for SCREEN_INTERRUPT_LINE
+intcode:
+  ldx #1 
+  stx loop_flag
+  // stx $d020 // test length in cycles
+
+out_interrupt:
+  // SALIDA DEL GAME LOOP
+  inc $d019           // acusamos recibo
+
+  pla             
+  tay             
+  pla             
+  tax             
+  pla             
+  rti
+
 
 
 loop_flag:
