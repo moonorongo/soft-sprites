@@ -1,5 +1,12 @@
 calc_bytes:
 {
+  // reset values
+  lda #0
+  sta tmp_address
+  sta tmp_address + 1
+  sta CALC_BYTE_OUTPUT
+  sta CALC_BYTE_OUTPUT + 1
+
   // y / 8 (integer division)
   lda sprite_y
   clc

@@ -12,3 +12,13 @@
 
 .const JOYSTICK_2= $DC00
 
+/* 
+tmp_address:
+  .byte $00,$00
+
+// resultado de la fn
+CALC_BYTE_OUTPUT: 
+  .byte $00,$00
+
+
+*/
